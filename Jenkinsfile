@@ -13,12 +13,18 @@ pipeline {
 		sh 'mvn clean package -U'
             }
         }
-	stage('Back-end') {
+	stage('Build-container') {
             agent {
-                docker { image 'maven:3-alpine' }
+	    // Equivalent to "docker build -f Dockerfile.build --build-arg version=1.0.2 ./build/
+		    dockerfile {
+			filename 'Dockerfile'
+			dir '.'
+			//label 'my-defined-label'
+			//additionalBuildArgs  '--build-arg version=1.0.2'
+		    }
             }
             steps {
-                sh 'mvn --version'
+                sh 'echo building docker container' 
             }
         }
         stage('Test'){
