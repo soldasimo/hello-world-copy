@@ -9,20 +9,21 @@ pipeline {
         }
 	stage ('Determine Branch Version') {
 		// add maven to path
-		env.PATH = "${tool 'M3'}/bin:${env.PATH}"
+		withEnv(["MAVEN_HOME=/usr/local/bin"]){
+			// determine version in pom.xml
+			branchVersion = sh(script: 'mvn -q -Dexec.executable=\'echo\' -Dexec.args=\'${project.version}\' --non-recursive exec:exec', returnStdout: true).trim()
+			echo "$branchVersion"
+			// compute proper branch SNAPSHOT version
+			//pomVersion = pomVersion.replaceAll(/-SNAPSHOT/, "") 
+			//branchVersion = env.BRANCH_NAME
+			// echo "$branchVersion"
+			//branchVersion = branchVersion.replaceAll(/origin\//, "") 
+			// branchVersion = branchVersion.replaceAll(/\W/, "-")
+			// branchVersion = "${pomVersion}-${branchVersion}-SNAPSHOT"
 
-		// determine version in pom.xml
-		def pomVersion = sh(script: 'mvn -q -Dexec.executable=\'echo\' -Dexec.args=\'${project.version}\' --non-recursive exec:exec', returnStdout: true).trim()
-
-		// compute proper branch SNAPSHOT version
-		pomVersion = pomVersion.replaceAll(/-SNAPSHOT/, "") 
-		branchVersion = env.BRANCH_NAME
-		branchVersion = branchVersion.replaceAll(/origin\//, "") 
-		branchVersion = branchVersion.replaceAll(/\W/, "-")
-		branchVersion = "${pomVersion}-${branchVersion}-SNAPSHOT"
-
-		// set branch SNAPSHOT version in pom.xml
-		sh "mvn versions:set -DnewVersion=${branchVersion}"
+			// set branch SNAPSHOT version in pom.xml
+			sh "mvn versions:set -DnewVersion=${branchVersion}"
+		}
 	}
         stage('Build') { 
             steps { 
