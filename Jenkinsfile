@@ -9,7 +9,8 @@ pipeline {
         }
         stage('Build') { 
             steps { 
-                sh 'echo building' 
+                sh 'echo building war file' 
+		sh 'mvn clean package -U'
             }
         }
         stage('Test'){
