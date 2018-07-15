@@ -13,6 +13,14 @@ pipeline {
 		sh 'mvn clean package -U'
             }
         }
+	stage('Back-end') {
+            agent {
+                docker { image 'maven:3-alpine' }
+            }
+            steps {
+                sh 'mvn --version'
+            }
+        }
         stage('Test'){
             steps {
                 sh 'echo testing'
